@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Compiled CUDA artifacts
+*.cubin
+*.ptx
+*.so
+
+# Scratch / spec notes (not part of the package)
+*_prompt.md
