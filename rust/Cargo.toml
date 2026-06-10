@@ -1,0 +1,10 @@
+[package]
+name = "tinymlc"
+version = "0.1.0"
+edition = "2021"
+description = "Rust port of tinymlc's IR + elementwise CUDA C++ codegen (std-only, no GPU)"
+license = "MIT"
+
+[lib]
+name = "tinymlc"
+path = "src/lib.rs"
