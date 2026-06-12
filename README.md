@@ -107,13 +107,23 @@ nodes are computed inline at the GEMM's output write.
 
 - Linux, Python 3.11+, an NVIDIA GPU, the CUDA toolkit with `nvcc` on `PATH`,
   and `libcuda` available (the driver). Developed on an RTX 3050 (sm_86),
-  CUDA 12.9.
-- `numpy`.
+  CUDA 12.9. CUDA 12.x and 13.x are both supported.
+- `numpy`. All other dependencies are standard-library.
 
 See **Running** below for environment setup, the `nvcc`/library discovery rules,
 and how to target a different GPU.
 
 ## Running
+
+**0. Conda quickstart (recommended).** An `environment.yml` is provided that
+pins all dependencies including the CUDA toolkit, a compatible host compiler
+(`gcc` 12, the maximum version supported by nvcc 12.4), and `numpy`/`pytest`:
+
+```bash
+conda env create -f environment.yml   # creates the "tinymlc" env
+conda activate tinymlc
+python success_example.py
+```
 
 **1. Use a Python that can see the CUDA toolkit.** `tinymlc` shells out to
 `nvcc` and `ctypes`-loads `libcudart`/`libcuda` at runtime, so they must be
@@ -127,9 +137,14 @@ python -c "import numpy" # the only Python dependency
 If your CUDA toolkit lives in a conda environment, run with **that
 environment's** Python so `nvcc` and `libcudart` resolve, e.g.
 `/path/to/envs/<env>/bin/python …`. `cuda_driver.py` locates `libcudart` via
-`CUDA_HOME`, then `sys.prefix`, then standard paths, and `libcuda` (the driver)
-via the usual names including the WSL path — so the active env's `bin/python`
-usually needs no extra `LD_LIBRARY_PATH`.
+`CUDA_HOME`, then `sys.prefix`, then standard paths (including the versioned
+`.so.12` / `.so.13` names used by different CUDA releases), and `libcuda`
+(the driver) via the usual names including the WSL path — so the active env's
+`bin/python` usually needs no extra `LD_LIBRARY_PATH`.
+
+`compiler.py` automatically detects the CUDA headers even when conda's
+`cuda-toolkit` places them under `targets/x86_64-linux/include/` rather than
+on nvcc's built-in search path.
 
 **2. Run from the repo root** (so `import tinymlc` resolves), or set
 `PYTHONPATH`:

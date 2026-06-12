@@ -41,9 +41,10 @@ def _cudart_candidates() -> list[str]:
     out = []
     for base in bases:
         if base:
-            out.append(os.path.join(base, "lib", "libcudart.so.12"))
-            out.append(os.path.join(base, "lib64", "libcudart.so.12"))
-    out += ["libcudart.so.12", "libcudart.so"]
+            for lib_dir in ("lib", "lib64"):
+                for ver in ("libcudart.so.12", "libcudart.so.13", "libcudart.so"):
+                    out.append(os.path.join(base, lib_dir, ver))
+    out += ["libcudart.so.12", "libcudart.so.13", "libcudart.so"]
     return out
 
 

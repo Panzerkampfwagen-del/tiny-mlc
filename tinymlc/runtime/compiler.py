@@ -39,12 +39,32 @@ def _find_nvcc() -> str:
     )
 
 
+def _cuda_include_flags() -> list[str]:
+    """Return -I flags for CUDA headers that nvcc may not find on its own.
+    Conda's cuda-toolkit places headers under targets/x86_64-linux/include/
+    which is not on nvcc's built-in search path."""
+    flags: list[str] = []
+    candidates = [
+        os.path.join(sys.prefix, "targets", "x86_64-linux", "include"),
+        os.path.join(sys.prefix, "include"),
+        os.environ.get("CUDA_HOME", "") and os.path.join(
+            os.environ["CUDA_HOME"], "include"),
+    ]
+    seen: set[str] = set()
+    for d in candidates:
+        if d and d not in seen and os.path.isfile(os.path.join(d, "cuda_runtime.h")):
+            flags += ["-I", d]
+            seen.add(d)
+    return flags
+
+
 def _run_nvcc(cu_path: str, cubin_path: str) -> None:
     nvcc = _find_nvcc()
     # Compile to a unique temp file then atomically rename, so a concurrent
     # compile of the same hash can never observe a half-written cubin.
     tmp_out = f"{cubin_path}.{os.getpid()}.tmp"
-    cmd = [nvcc, "-O3", f"-arch={ARCH}", "-cubin", "-o", tmp_out, cu_path]
+    cmd = [nvcc, "-O3", f"-arch={ARCH}", "-cubin",
+           *_cuda_include_flags(), "-o", tmp_out, cu_path]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
         if os.path.exists(tmp_out):

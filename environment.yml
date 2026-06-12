@@ -1,0 +1,15 @@
+name: tinymlc
+channels:
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - pytest
+  # CUDA toolkit 12.4 — provides nvcc; headers land in targets/x86_64-linux/include/
+  - cuda-toolkit=12.4
+  - cuda-nvcc=12.4
+  # gcc 12 is the maximum version supported by nvcc 12.4
+  - gcc=12
+  - gxx=12
